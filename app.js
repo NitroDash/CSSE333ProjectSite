@@ -1,11 +1,13 @@
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = 80;
 var Connection = require('tedious').Connection;
 var Request = require('tedious').Request;
 
 app.use(express.static('public'));
-app.get('/login/user/:user/pass/:pass', (req, res) => attemptLogin(req.params.user, req.params.pass, res));
+app.use(express.json());
+app.use(express.urlencoded({extended:true}));
+app.post('/login', (req, res) => attemptLogin(req.body, res));
 app.listen(port, () => console.log(`App listening at http://localhost:${port}`))
 
 var config = {
@@ -23,9 +25,13 @@ function sanitize(input) {
     return input;
 }
 
-function attemptLogin(user, pass, res) {
-    executeQuery(`EXEC [Login] '${sanitize(user)}', '${sanitize(pass)}'`, function(result, err) {
-        res.send(result.length > 0);
+function attemptLogin(loginInfo, res) {
+    executeQuery(`EXEC [Login] '${sanitize(loginInfo.Username)}', '${sanitize(loginInfo.Password)}'`, function(result, err) {
+        if (result.length > 0) {
+            res.redirect("/login.html?fail=false");
+        } else {
+            res.redirect("/failLogin.html");
+        }
     })
 }
 

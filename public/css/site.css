@@ -3,6 +3,11 @@
     margin: auto;
 }
 
+.failed-login {
+    background-color: lightcoral;
+    font-weight: bold;
+}
+
 html{
     position: relative;
     min-height: 100%;
