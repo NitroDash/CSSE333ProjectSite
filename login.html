@@ -31,9 +31,24 @@
     </div>
 </nav>
 <body class="text-dark bg-white">
-    <div class="container">
-        <h1>Home</h1>
-    </div>
+    <form class="form-container">
+        <div class="text-center">
+            <h1>Sign In</h1>
+        </div>
+        <div class="form-group">
+            <label for="Username">Username</label>
+            <input type="text" class="form-control" name="Username" id="usernameInput" aria-describedby="Username"
+                placeholder="Username">
+        </div>
+        <div class="form-group">
+            <label for="Password">Password</label>
+            <input type="password" class="form-control" name="Password" id="passwordInput" aria-describedby="Password"
+                placeholder="Password">
+        </div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
 </body>
 <footer class="border-top footer text-muted box-shadow bg-light">
     <div class="container">
