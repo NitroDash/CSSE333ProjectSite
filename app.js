@@ -4,7 +4,7 @@ const port = 3000;
 var Connection = require('tedious').Connection;
 var Request = require('tedious').Request;
 
-app.get('/', (req, res) => requestAndReturn(res));
+app.use(express.static('public'));
 app.get('/login/user/:user/pass/:pass', (req, res) => attemptLogin(req.params.user, req.params.pass, res));
 app.listen(port, () => console.log(`App listening at http://localhost:${port}`))
 
