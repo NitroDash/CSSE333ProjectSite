@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
-    <title>Sheet Music Login</title>
+    <title>Sheet Music Sign Up</title>
 </head>
 <nav class="navbar navbar-expand-sm navbar-light border-bottom box-shadow mb-3">
     <div class="container">
@@ -31,27 +31,33 @@
     </div>
 </nav>
 <body class="text-dark bg-white">
-    <form action="/login" method="POST" class="form-container">
+    <form action="/register" method="POST" class="form-container">
         <div class="text-center">
-            <h1>Sign In</h1>
+            <h1>Sign Up</h1>
         </div>
         <div class="form-group">
             <label for="Username">Username</label>
             <input type="text" class="form-control" name="Username" id="usernameInput" aria-describedby="Username"
-                placeholder="Username">
+                placeholder="Unique username">
         </div>
         <div class="form-group">
             <label for="Password">Password</label>
             <input type="password" class="form-control" name="Password" id="passwordInput" aria-describedby="Password"
                 placeholder="Password">
         </div>
+        <div class="form-group">
+            <label for="Password">Repeat Your Password</label>
+            <input type="password" class="form-control" name="Password" id="passwordInput" aria-describedby="Password"
+                placeholder="Password repeated">
+        </div>
+        <div class="form-group">
+            <input type="checkbox" name="isComposer" value="isComposer" is="isComposer"> <label for="isComposer">Check if registering as a composer</label>
+        </div class="form-group">
+        
         <div class="text-center">
             <button type="submit" class="btn btn-primary">Submit</button>
         </div>
         <br>
-        <div>
-            <a href="./register.html"> Not registered? Join now!</a>
-        </div>
     </form>
 </body>
 <footer class="border-top footer text-muted box-shadow bg-light">
