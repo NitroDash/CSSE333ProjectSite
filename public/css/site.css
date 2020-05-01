@@ -44,6 +44,12 @@ body {
     #trend {
         margin-right: 730px;
     }
+    #view1 {
+        margin-left: 10px;
+    }
+    #view2 {
+        margin-left: 240px;
+    }
 }
 
 .footer-relative {
@@ -56,9 +62,27 @@ body {
 }
 
 #list {
+    list-style-type: square;
     margin-left: 90px;
 }
 
 #list li {
     margin: 15px;
+}
+
+#review-div {
+    margin-left: 90px;
+    margin-top: 50px;
+    height: 250px;
+    padding: 20px;
+    background-color: burlywood;
+}
+
+#search-results {
+    list-style-type: square;
+    margin-top: 80px;
+    padding: 20px;
+    text-align: center;
+    list-style: inside;
+    width: 80%;
 }

@@ -8,5 +8,5 @@ function createPiece(title, composer, timeUploaded, tags, stars, copyright) {
         $(`#list li:nth-child(${i + 1})`).append(text)
     }
 }
-
-createPiece("Friends", "Anne Marie & Marshmello", new Date().getTime(), "Pop", "4", "N/A");
+var date = new Date();
+createPiece("Friends", "Anne Marie & Marshmello", date.toString(), "Pop", "4", "N/A");
