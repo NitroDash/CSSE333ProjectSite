@@ -11,10 +11,10 @@ app.use(express.urlencoded({extended:true}));
 app.use(session({secret: "asufghaunefnw98fn", resave: true, saveUninitialized: true}));
 app.use(cookieParser());
 
-//app.get('/', (req, res) => res.sendFile('/login.html'));
-//app.get('/index', checkForLogin, (req, res) => res.sendFile('/index.html'));
 app.use('/', checkForLogin, express.static('public', {extensions: ['html', 'htm']}));
 app.post('/login', (req, res) => attemptLogin(req, res));
+app.post('/register', (req, res) => attemptRegister(req, res));
+app.post('/searchResults', (req, res) => pieceSearch(req, res));
 app.listen(port, () => console.log(`App listening at http://localhost:${port}`));
 
 var config = {
@@ -43,14 +43,33 @@ function attemptLogin(req, res) {
     })
 }
 
+function attemptRegister(req, res) {
+    executeQuery(`EXEC [RegisterUser] '${sanitize(req.body.Username)}', '${sanitize(req.body.Password)}'`, function(result, err) {
+        if (err) {
+            res.redirect("/register");
+        } else {
+            req.session.user = req.body;
+            res.redirect("/");
+        }
+    })
+}
+
 function checkForLogin(req, res, next) {
-    if (req.session.user || (req.path == '/login') || (req.path == '/css/site.css')) {
+    if (req.session.user || (req.path == '/login') || (req.path == '/css/site.css') || (req.path == '/register')) {
         next();
-    } else if (req.path == '/') {
-        res.redirect('/login');
     } else {
         res.redirect('/login');
     }
+}
+
+function pieceSearch(req, res) {
+    executeQuery(`EXEC [PiecesWithTitle] [${req.body.Title}]`, function(result, err) {
+        if (err) {
+            res.redirect("/searchResults");
+        } else {
+            res.send(result);
+        }
+    })
 }
 
 function executeQuery(query, callback) {
