@@ -33,5 +33,32 @@ body {
 }
 
 .videos {
-    text-align: center;
+    margin-top: 80px;
+
+}
+
+#trend {
+    margin-right: 300px;
+}
+@media (min-width: 992px){
+    #trend {
+        margin-right: 730px;
+    }
+}
+
+.footer-relative {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    height: 58px;
+    line-height: 41px;
+}
+
+#list {
+    margin-left: 90px;
+}
+
+#list li {
+    margin: 15px;
 }
