@@ -40,10 +40,24 @@ body {
 #trend {
     margin-right: 300px;
 }
+
+#describe {
+    margin-top:80px ;
+    align-content: center;
+    margin-left: 133px;
+    margin-right: 133px;
+}
+
+
+
+
 @media (min-width: 992px){
     #trend {
         margin-right: 730px;
     }
+
+    
+
     #view1 {
         margin-left: 10px;
     }
