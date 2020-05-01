@@ -3,12 +3,19 @@ const app = express();
 const port = 80;
 var Connection = require('tedious').Connection;
 var Request = require('tedious').Request;
+var session = require('express-session');
+var cookieParser = require('cookie-parser');
 
-app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-app.post('/login', (req, res) => attemptLogin(req.body, res));
-app.listen(port, () => console.log(`App listening at http://localhost:${port}`))
+app.use(session({secret: "asufghaunefnw98fn", resave: true, saveUninitialized: true}));
+app.use(cookieParser());
+
+//app.get('/', (req, res) => res.sendFile('/login.html'));
+//app.get('/index', checkForLogin, (req, res) => res.sendFile('/index.html'));
+app.use('/', checkForLogin, express.static('public', {extensions: ['html', 'htm']}));
+app.post('/login', (req, res) => attemptLogin(req, res));
+app.listen(port, () => console.log(`App listening at http://localhost:${port}`));
 
 var config = {
   server: 'golem.csse.rose-hulman.edu',
@@ -25,14 +32,25 @@ function sanitize(input) {
     return input;
 }
 
-function attemptLogin(loginInfo, res) {
-    executeQuery(`EXEC [Login] '${sanitize(loginInfo.Username)}', '${sanitize(loginInfo.Password)}'`, function(result, err) {
+function attemptLogin(req, res) {
+    executeQuery(`EXEC [Login] '${sanitize(req.body.Username)}', '${sanitize(req.body.Password)}'`, function(result, err) {
         if (result.length > 0) {
-            res.redirect("/login.html?fail=false");
+            req.session.user = req.body;
+            res.redirect("/index");
         } else {
-            res.redirect("/failLogin.html");
+            res.redirect("/");
         }
     })
+}
+
+function checkForLogin(req, res, next) {
+    if (req.session.user || (req.path == '/login') || (req.path == '/css/site.css')) {
+        next();
+    } else if (req.path == '/') {
+        res.redirect('/login');
+    } else {
+        res.redirect('/login');
+    }
 }
 
 function executeQuery(query, callback) {
