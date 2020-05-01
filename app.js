@@ -15,6 +15,7 @@ app.use('/', checkForLogin, express.static('public', {extensions: ['html', 'htm'
 app.post('/login', (req, res) => attemptLogin(req, res));
 app.post('/register', (req, res) => attemptRegister(req, res));
 app.post('/searchResults', (req, res) => pieceSearch(req, res));
+app.get('/logout', (req, res) => logout(req, res));
 app.listen(port, () => console.log(`App listening at http://localhost:${port}`));
 
 var config = {
@@ -62,8 +63,13 @@ function checkForLogin(req, res, next) {
     }
 }
 
+function logout(req, res) {
+    req.session.user = undefined;
+    res.redirect('/');
+}
+
 function pieceSearch(req, res) {
-    executeQuery(`EXEC [PiecesWithTitle] [${req.body.Title}]`, function(result, err) {
+    executeQuery(`EXEC [PiecesWithTitle] '${req.body.Title}'`, function(result, err) {
         if (err) {
             res.redirect("/searchResults");
         } else {
