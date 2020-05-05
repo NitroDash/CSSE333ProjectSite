@@ -6,12 +6,16 @@ var Request = require('tedious').Request;
 var session = require('express-session');
 var cookieParser = require('cookie-parser');
 
+app.set('view engine', 'pug');
+
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(session({secret: "asufghaunefnw98fn", resave: true, saveUninitialized: true}));
 app.use(cookieParser());
 
-app.use('/', checkForLogin, express.static('public', {extensions: ['html', 'htm']}));
+app.get(['/index', '/'], checkForLogin, (req, res) => {res.render('index')});
+app.get('/login', (req, res) => res.render('login'));
+app.use('/', checkForLogin, express.static('public'));
 app.post('/login', (req, res) => attemptLogin(req, res));
 app.post('/register', (req, res) => attemptRegister(req, res));
 app.post('/searchResults', (req, res) => pieceSearch(req, res));
@@ -37,9 +41,9 @@ function attemptLogin(req, res) {
     executeQuery(`EXEC [Login] '${sanitize(req.body.Username)}', '${sanitize(req.body.Password)}'`, function(result, err) {
         if (result.length > 0) {
             req.session.user = req.body;
-            res.redirect("/index");
-        } else {
             res.redirect("/");
+        } else {
+            res.render('login', {failMessage: "The username or password was incorrect."});
         }
     })
 }

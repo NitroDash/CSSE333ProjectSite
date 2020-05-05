@@ -1,0 +1,28 @@
+doctype html
+html(lang='en')
+
+head
+    include includes/head_data.html
+    title Sheet Music Login
+
+include includes/signin_header.html
+
+body(class="text-dark bg-white")
+    form(action="/login" method="POST" class="form-container")
+        div(class="text-center")
+            h1 Sign In
+            if failMessage
+                div(class="error")= failMessage
+        div(class="form-group")
+            label(for="Username") Username
+            input(type="text" class="form-control" name="Username" id="usernameInput" aria-describedby="Username" placeholder="Username")
+        div(class="form-group")
+            label(for="Password") Password
+            input(type="password" class="form-control" name="Password" id="passwordInput" aria-describedby="Password" placeholder="Password")
+        div(class="text-center")
+            button(type="submit" class="btn btn-primary") Submit
+        |
+        div
+            a(href="./register") Not registered? Join now!
+
+include includes/footer.html

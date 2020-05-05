@@ -100,3 +100,8 @@ body {
     list-style: inside;
     width: 80%;
 }
+
+.error {
+    background-color: lightcoral;
+    border-color: black;
+}
