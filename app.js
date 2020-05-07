@@ -1,8 +1,7 @@
 const express = require('express');
 const app = express();
 const port = 80;
-var Connection = require('tedious').Connection;
-var Request = require('tedious').Request;
+var sql = require('mssql');
 var session = require('express-session');
 var cookieParser = require('cookie-parser');
 
@@ -16,8 +15,8 @@ app.use(cookieParser());
 // Endpoints for views
 app.get(['/index', '/'], checkForLogin, (req, res) => {res.render('index')});
 app.get('/login', (req, res) => res.render('login'));
-app.get(['/postPiece', '/'], checkForLogin, (req, res) => {res.render('postPiece')});
-app.get(['/dataImport', '/'], checkForLogin, (req, res) => {res.render('dataImport')});
+app.get('/postPiece', checkForLogin, (req, res) => {res.render('postPiece')});
+app.get('/dataImport', checkForLogin, (req, res) => {res.render('dataImport')});
 
 //Catchall for .html files that haven't been converted to views yet
 app.use('/', checkForLogin, express.static('public', {extensions: ['html', 'htm']}));
@@ -33,23 +32,15 @@ app.get('/logout', (req, res) => logout(req, res));
 //Start the server!
 app.listen(port, () => console.log(`App listening at http://localhost:${port}`));
 
-var config = {
-  server: 'golem.csse.rose-hulman.edu',
-  authentication: {
-    type: 'default',
-    options: {
-      userName: 'SheetMusicClient',
-      password: 'HJCszqVxEe1'
-    }
-  }
-}
-
-function sanitize(input) {
-    return input;//Unimplemented, will use the mysql library in the future to handle this
+const config = {
+    user: 'SheetMusicClient',
+    password: 'HJCszqVxEe1',
+    server: 'golem.csse.rose-hulman.edu',
+    database: 'SheetMusic'
 }
 
 function attemptLogin(req, res) {
-    executeQuery(`EXEC [Login] '${sanitize(req.body.Username)}', '${sanitize(req.body.Password)}'`, function(result, err) {
+    callProcedure("Login", [{name: "Username", type: sql.VarChar(30), value: req.body.Username}, {name: "Password", type: sql.VarChar(50), value: req.body.Password}], function(result, err) {
         if (result.length > 0) {
             req.session.user = req.body;
             res.redirect("/");
@@ -60,7 +51,7 @@ function attemptLogin(req, res) {
 }
 
 function attemptRegister(req, res) {
-    executeQuery(`EXEC [RegisterUser] '${sanitize(req.body.Username)}', '${sanitize(req.body.Password)}'`, function(result, err) {
+    callProcedure("RegisterUser", [{name: "Username", type: sql.VarChar(30), value: req.body.Username}, {name: "Password", type: sql.VarChar(50), value: req.body.Password}], function(result, err) {
         if (err) {
             res.redirect("/register");
         } else {
@@ -84,7 +75,7 @@ function logout(req, res) {
 }
 
 function pieceSearch(req, res) {
-    executeQuery(`EXEC [PiecesWithTitle] '${req.body.Title}'`, function(result, err) {
+    callProcedure("PiecesWithTitle", [{name: "Title", type: sql.VarChar(50), value: req.body.Title}], function(result, err) {
         if (err) {
             res.redirect("/searchResults");
         } else {
@@ -93,42 +84,16 @@ function pieceSearch(req, res) {
     })
 }
 
-function executeQuery(query, callback) {
-    var connection = new Connection(config);
-    connection.connect();
-    connection.on('connect', function(err) {
-        if (err) {
-            console.log(err);
-            callback([], "ERROR: Connection failed");
-        } else {
-            executeStatement(query, connection, callback);
+function callProcedure(proc_name, inputs, callback) {
+    sql.connect(config).then(pool => {
+        var connection = pool.request();
+        for (var i = 0; i < inputs.length; i++) {
+            connection = connection.input(inputs[i].name, inputs[i].type, inputs[i].value);
         }
-    })
-}
-
-function executeStatement (query, connection, callback) {
-    var result = [];
-  request = new Request(query, function (err, rowCount) {
-    if (err) {
-      console.log(err);
+        return connection.execute(proc_name);
+    }).then(result => {
+        callback(result.recordset, null);
+    }).catch(err => {
         callback([], err);
-    } else {
-      console.log(rowCount + ' rows')
-        callback(result, null);
-        connection.close();
-    }
-  })
-
-  request.on('row', function (columns) {
-      result.push(columns);
-    /*columns.forEach(function (column) {
-      if (column.value === null) {
-        console.log('NULL')
-      } else {
-        console.log(column.value)
-      }
-    })*/
-  })
-
-  connection.execSql(request)
+    })
 }
