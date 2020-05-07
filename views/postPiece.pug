@@ -1,0 +1,42 @@
+doctype html
+head
+  include includes/head_data.html
+  title Post Your Piece
+
+include includes/signout_header.html
+
+
+
+form.form-container(action='/register' method='POST')
+  .text-center
+    h1 Post Your Piece
+    br
+  .form-group
+    label(for='Title') Title
+    input#usernameInput.form-control(type='text' name='Title' aria-describedby='Title' placeholder='Piece title')
+  .form-group
+    label(for='Copyright') Copyright
+    input#Copyright.form-control(type='Copyright' name='Copyright' aria-describedby='Copyright' placeholder='Copyright')
+  .form-group
+    label(for='Composer') Composer
+    input#Composer.form-control(type='Composer' name='Composer' aria-describedby='Composer' placeholder='Composer name')
+  .form-group
+    label(for='Publisher') Publisher
+    input#Publisher.form-control(type='Publisher' name='Publisher' aria-describedby='Publisher' placeholder='Piece publisher')
+  .form-group
+    input(type='checkbox' name='isPaid' value='isPaid' is='isPaid')
+    label(for='isPaid') Paid?
+  .text-center
+    button.btn.btn-secondary(type='submit') Select Sheet File (.pdf only)
+    br
+    br
+    br
+  .text-center
+    button.btn.btn-primary(type='submit') Submit
+  br
+  
+include includes/footer.html
+
+script(src='https://code.jquery.com/jquery-3.4.1.slim.min.js' integrity='sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n' crossorigin='anonymous')
+script(src='https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js' integrity='sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo' crossorigin='anonymous')
+script(src='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js' integrity='sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6' crossorigin='anonymous')

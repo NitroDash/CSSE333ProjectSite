@@ -15,6 +15,9 @@ app.use(cookieParser());
 
 app.get(['/index', '/'], checkForLogin, (req, res) => {res.render('index')});
 app.get('/login', (req, res) => res.render('login'));
+app.get(['/postPiece', '/'], checkForLogin, (req, res) => {res.render('postPiece')});
+app.get(['/dataImport', '/'], checkForLogin, (req, res) => {res.render('dataImport')});
+
 app.use('/', checkForLogin, express.static('public'));
 app.post('/login', (req, res) => attemptLogin(req, res));
 app.post('/register', (req, res) => attemptRegister(req, res));
