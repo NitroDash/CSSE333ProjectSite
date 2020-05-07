@@ -16,8 +16,8 @@ app.use(cookieParser());
 // Endpoints for views
 app.get(['/index', '/'], checkForLogin, (req, res) => {res.render('index')});
 app.get('/login', (req, res) => res.render('login'));
-app.get(['/postPiece', '/'], checkForLogin, (req, res) => {res.render('postPiece')});
-app.get(['/dataImport', '/'], checkForLogin, (req, res) => {res.render('dataImport')});
+app.get('/postPiece', checkForLogin, (req, res) => {res.render('postPiece')});
+app.get('/dataImport', checkForLogin, (req, res) => {res.render('dataImport')});
 
 //Catchall for .html files that haven't been converted to views yet
 app.use('/', checkForLogin, express.static('public', {extensions: ['html', 'htm']}));
