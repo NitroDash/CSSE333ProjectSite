@@ -7,7 +7,7 @@ include includes/signout_header.html
 
 
 
-form.form-container(action='/register' method='POST')
+form.form-container(action='/postPiece' method='POST' enctype='multipart/form-data')
   .text-center
     h1 Post Your Piece
     br
@@ -27,7 +27,8 @@ form.form-container(action='/register' method='POST')
     input(type='checkbox' name='isPaid' value='isPaid' is='isPaid')
     label(for='isPaid') Paid?
   .text-center
-    button.btn.btn-secondary(type='submit') Select Sheet File (.pdf only)
+    label(for='Sheet') Upload your PDF
+    input#Sheet.form-control(type='file' name='Sheet' accept='.pdf')
     br
     br
     br
@@ -36,7 +37,3 @@ form.form-container(action='/register' method='POST')
   br
   
 include includes/footer.html
-
-script(src='https://code.jquery.com/jquery-3.4.1.slim.min.js' integrity='sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n' crossorigin='anonymous')
-script(src='https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js' integrity='sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo' crossorigin='anonymous')
-script(src='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js' integrity='sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6' crossorigin='anonymous')

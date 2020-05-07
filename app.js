@@ -1,4 +1,5 @@
 const express = require('express');
+const fileUpload = require('express-fileupload');
 const app = express();
 const port = 80;
 var sql = require('mssql');
@@ -8,6 +9,11 @@ var cookieParser = require('cookie-parser');
 //Setting various parameters
 app.set('view engine', 'pug');
 app.use(express.json());
+app.use(fileUpload({
+    limits: {fileSize: 50*1024*1024},
+    useTempFIles: true,
+    tempFileDir: '/tmp'
+}));
 app.use(express.urlencoded({extended:true}));
 app.use(session({secret: "asufghaunefnw98fn", resave: true, saveUninitialized: true}));
 app.use(cookieParser());
@@ -25,6 +31,7 @@ app.use('/', checkForLogin, express.static('public', {extensions: ['html', 'htm'
 app.post('/login', (req, res) => attemptLogin(req, res));
 app.post('/register', (req, res) => attemptRegister(req, res));
 app.post('/searchResults', (req, res) => pieceSearch(req, res));
+app.post('/postPiece', (req, res) => postPiece(req, res));
 
 //Logout
 app.get('/logout', (req, res) => logout(req, res));
@@ -76,10 +83,30 @@ function logout(req, res) {
 
 function pieceSearch(req, res) {
     callProcedure("PiecesWithTitle", [{name: "Title", type: sql.VarChar(50), value: req.body.Title}], function(result, err) {
-        if (err) {
+        if (err || result.length == 0) {
             res.redirect("/searchResults");
         } else {
-            res.send(result);
+            callProcedure("GetPieceData", [{name: "ID", type: sql.Int, value: result[0].ID}], function(result, err) {
+                if (err) {
+                    res.redirect("/searchResults");
+                } else {
+                    res.writeHead(200, {
+                        "Content-Type": "application/pdf",
+                        "Content-Disposition": "attachment; filename=sheet.pdf"
+                    });
+                    res.end(result[0].Sheet);
+                }
+            })
+        }
+    })
+}
+
+function postPiece(req, res) {
+    uploadPiece(req.body.Title, req.files.Sheet.data, req.body.Copyright, 1, null, false, function(err) {
+        if (err) {
+            res.redirect("/");
+        } else {
+            res.redirect("/postPiece");
         }
     })
 }
@@ -95,5 +122,28 @@ function callProcedure(proc_name, inputs, callback) {
         callback(result.recordset, null);
     }).catch(err => {
         callback([], err);
+    })
+}
+
+function uploadPiece(title, sheetBuffer, copyright, composerID, publisherID, isPaid, callback) {
+    sql.connect(config).then(pool => {
+        var ps = new sql.PreparedStatement(pool);
+        ps.input('title', sql.VarChar(50));
+        ps.input('sheet', sql.VarBinary);
+        ps.input('copyright', sql.VarChar(50));
+        ps.input('cID', sql.Int);
+        ps.input('pID', sql.Int);
+        ps.input('paid', sql.Bit);
+        return ps.prepare('EXEC PostPiece @title, @sheet, @copyright, @cID, @pID, @paid', function(err) {
+            if (err) {callback(err); return;}
+            ps.execute({title: title, sheet: sheetBuffer, copyright: copyright, cID: composerID, pID: publisherID, paid: isPaid}, function(err, records) {
+                if (err) {callback(err); return;}
+                ps.unprepare(function(err) {
+                    callback(err);
+                })
+            })
+        })
+    }).catch(err => {
+        callback(err);
     })
 }
