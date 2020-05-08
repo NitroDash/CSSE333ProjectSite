@@ -70,7 +70,7 @@ function attemptLogin(req, res) {
 
 function attemptRegister(req, res) {
     bcrypt.hash(req.body.Password,saltRounds,function(err, hash){
-        callProcedure("RegisterUser", [{name: "Username", type: sql.VarChar(30), value: req.body.Username}, {name: "Password", type: sql.VarChar(50), value: hash}], function(result, err) {
+        callProcedure("RegisterUser", [{name: "Username", type: sql.VarChar(30), value: req.body.Username}, {name: "Password", type: sql.NVarChar(80), value: hash}], function(result, err) {
             if (err) {
                 res.redirect("/register");
             } else {
