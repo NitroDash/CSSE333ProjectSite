@@ -49,10 +49,16 @@ const config = {
 }
 
 function attemptLogin(req, res) {
-    callProcedure("Login", [{name: "Username", type: sql.VarChar(30), value: req.body.Username}, {name: "Password", type: sql.VarChar(50), value: req.body.Password}], function(result, err) {
+    callProcedure("GetPasswordHash", [{name: "Username", type: sql.VarChar(30), value: req.body.Username}], function(result, err) {
         if (result.length > 0) {
-            req.session.user = req.body;
-            res.redirect("/");
+            bcrypt.compare(req.body.Password,result[0].Hash, function(err,result) {
+                if (result) {
+                    req.session.user = req.body;
+                    res.redirect("/");
+                } else {
+                    res.render('login', {failMessage: "The username or password was incorrect."});
+                }
+            });
         } else {
             res.render('login', {failMessage: "The username or password was incorrect."});
         }
