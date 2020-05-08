@@ -8,7 +8,7 @@ head
 include includes/signout_header.html
 
 body(class="text-dark bg-white")
-    form(action="/login" method="POST" class="form-container")
+    form(action="/import" method="POST" class="form-container" enctype="multipart/form-data")
         div(class="text-center")
             h1 Import Data
             br
@@ -19,7 +19,11 @@ body(class="text-dark bg-white")
             br
                 
         div(class="text-center")
-            button(type="submit" class="btn btn-primary") One-Click Import
+            label(for='Meta') Paste your JSON
+            input#Meta.form-control(type='text' name='Meta')
+            label(for='Sheets') Upload your sheets (filenames included in JSON)
+            input#Sheets.form-control(type='file' name='Sheets' accept='.pdf' multiple)
+            button.btn.btn-primary(type='submit') Submit
         
 
 include includes/footer.html

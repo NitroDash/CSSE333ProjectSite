@@ -32,6 +32,7 @@ app.post('/login', (req, res) => attemptLogin(req, res));
 app.post('/register', (req, res) => attemptRegister(req, res));
 app.post('/searchResults', (req, res) => pieceSearch(req, res));
 app.post('/postPiece', (req, res) => postPiece(req, res));
+app.post('/import', (req, res) => importPieces(req, res));
 
 //Logout
 app.get('/logout', (req, res) => logout(req, res));
@@ -102,6 +103,7 @@ function pieceSearch(req, res) {
 }
 
 function postPiece(req, res) {
+    console.log(req.files);
     uploadPiece(req.body.Title, req.files.Sheet.data, req.body.Copyright, 1, null, false, function(err) {
         if (err) {
             res.redirect("/");
@@ -109,6 +111,21 @@ function postPiece(req, res) {
             res.redirect("/postPiece");
         }
     })
+}
+
+function importPieces(req, res) {
+    var fileData = JSON.parse(req.body.Meta);
+    for (var i = 0; i < fileData.length; i++) {
+        var filename = fileData[i].filename;
+        req.files.Sheets.forEach(sheet => {
+            if (sheet.name == filename) {
+                uploadPiece(fileData[i].title, sheet.data, fileData[i].copyright, fileData[i].composerID, fileData[i].publisherID, !!fileData[i].isPaid, function(err) {
+                    if (err) console.log(err);
+                })
+            }
+        })
+    }
+    res.redirect("/");
 }
 
 function callProcedure(proc_name, inputs, callback) {
