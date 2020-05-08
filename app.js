@@ -49,9 +49,11 @@ const config = {
 }
 
 function attemptLogin(req, res) {
-    callProcedure("GetPasswordHash", [{name: "Username", type: sql.VarChar(30), value: req.body.Username}], function(result, err) {
+    callProcedure("GetPassword", [{name: "Username", type: sql.VarChar(30), value: req.body.Username}], function(result, err) {
         if (result.length > 0) {
-            bcrypt.compare(req.body.Password,result[0].Hash, function(err,result) {
+            console.log(`test`);
+            // console.log(result[0].length);
+            bcrypt.compare(req.body.Password,result[0].Password, function(err,result) {
                 if (result) {
                     req.session.user = req.body;
                     res.redirect("/");
@@ -62,7 +64,7 @@ function attemptLogin(req, res) {
         } else {
             res.render('login', {failMessage: "The username or password was incorrect."});
         }
-    })
+    });
 }
 
 function attemptRegister(req, res) {
