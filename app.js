@@ -5,6 +5,8 @@ const port = 80;
 var sql = require('mssql');
 var session = require('express-session');
 var cookieParser = require('cookie-parser');
+var bcrypt = require('bcrypt');
+var saltRounds = 10;
 
 //Setting various parameters
 app.set('view engine', 'pug');
@@ -48,24 +50,34 @@ const config = {
 }
 
 function attemptLogin(req, res) {
-    callProcedure("Login", [{name: "Username", type: sql.VarChar(30), value: req.body.Username}, {name: "Password", type: sql.VarChar(50), value: req.body.Password}], function(result, err) {
+    callProcedure("GetPassword", [{name: "Username", type: sql.VarChar(30), value: req.body.Username}], function(result, err) {
         if (result.length > 0) {
-            req.session.user = req.body;
-            res.redirect("/");
+            console.log(`test`);
+            // console.log(result[0].length);
+            bcrypt.compare(req.body.Password,result[0].Password, function(err,result) {
+                if (result) {
+                    req.session.user = req.body;
+                    res.redirect("/");
+                } else {
+                    res.render('login', {failMessage: "The username or password was incorrect."});
+                }
+            });
         } else {
             res.render('login', {failMessage: "The username or password was incorrect."});
         }
-    })
+    });
 }
 
 function attemptRegister(req, res) {
-    callProcedure("RegisterUser", [{name: "Username", type: sql.VarChar(30), value: req.body.Username}, {name: "Password", type: sql.VarChar(50), value: req.body.Password}], function(result, err) {
-        if (err) {
-            res.redirect("/register");
-        } else {
-            req.session.user = req.body;
-            res.redirect("/");
-        }
+    bcrypt.hash(req.body.Password,saltRounds,function(err, hash){
+        callProcedure("RegisterUser", [{name: "Username", type: sql.VarChar(30), value: req.body.Username}, {name: "Password", type: sql.VarChar(50), value: hash}], function(result, err) {
+            if (err) {
+                res.redirect("/register");
+            } else {
+                req.session.user = req.body;
+                res.redirect("/");
+            }
+        })
     })
 }
 
