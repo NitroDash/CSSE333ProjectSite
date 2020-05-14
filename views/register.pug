@@ -1,0 +1,31 @@
+doctype html
+html(lang='en')
+head
+    include includes/head_data.html
+    title Sheet Music Sign Up
+
+include includes/signin_header.html
+
+body(class="text-dark bg-white")
+    form.form-container(action="/register" method="POST" class="form-container")
+        div.text-center
+            h1 Sign Up
+            if failMessage
+                div(class="error")= failMessage
+        div.form-group
+            label(for="Username") Username
+            input(type="text" class="form-control" name="Username" id="usernameInput" aria-describedby="Username" placeholder="Unique username")
+        div.form-group
+            label(for="Password") Password
+            input(type="password" class="form-control" name="Password" id="passwordInput" aria-describedby="Password" placeholder="Password")
+        div.form-group
+            label(for="Password") Repeat Your Password
+            input(type="password" class="form-control" name="PasswordRepeat" id="passwordInput" aria-describedby="Password" placeholder="Password repeated")
+        div.form-group
+            input(type="checkbox" name="isComposer" value="isComposer" is="isComposer")
+            label(for="isComposer") Check if registering as a composer
+        
+        div.text-center
+            button(type="submit" class="btn btn-primary") Submit
+            |
+include includes/footer.html

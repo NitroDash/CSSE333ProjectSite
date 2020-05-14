@@ -28,6 +28,7 @@ app.get('/dataImport', checkForLogin, (req, res) => {res.render('dataImport')});
 app.get('/postReview', checkForLogin, (req, res) => {res.render('postReview')});
 app.get('/piece', checkForLogin, (req, res) => renderPiecePage(req, res, req.query.id));
 app.get('/pdfs', checkForLogin, (req, res) => renderPDF(req, res, req.query.id));
+app.get('/register', (req, res) => {res.render('register')})
 
 //Catchall for .html files that haven't been converted to views yet
 app.use('/', checkForLogin, express.static('public', {extensions: ['html', 'htm']}));
@@ -70,11 +71,18 @@ function attemptLogin(req, res) {
 }
 
 function attemptRegister(req, res) {
+    if (req.body.Password != req.body.PasswordRepeat) {
+        res.render('register', {failMessage: "The entered passwords must match."});
+        return;
+    }
     bcrypt.hash(req.body.Password,saltRounds,function(err, hash){
         callProcedure("RegisterUser", [{name: "Username", type: sql.VarChar(30), value: req.body.Username}, {name: "Password", type: sql.NVarChar(80), value: hash}], function(result, err) {
             if (err) {
-                res.redirect("/register");
+                res.render("register", {failMessage: "That username already exists. Please choose another."});
             } else {
+                if (req.body.isComposer) {
+                    callProcedure("RegisterComposerForUser", [{name: "ComposerName", type: sql.VarChar(30), value: req.body.Username}], function(result, err) {})
+                }
                 req.session.user = req.body;
                 res.redirect("/");
             }
