@@ -121,7 +121,9 @@ function renderPiecePage(req, res, pieceID) {
         if (err) {
             res.render("piece");
         } else {
-            res.render("piece", pieceData[0]);
+            callProcedure("ReviewsOfPiece", [{name: "PieceID", type: sql.Int, value: pieceID}], function(reviews, err) {
+                res.render("piece", {'pieceData': pieceData[0], 'reviews': reviews});
+            })
         }
     })
 }
@@ -140,7 +142,6 @@ function renderPDF(req, res, pieceID) {
 }
 
 function postPiece(req, res) {
-    console.log(req.files);
     uploadPiece(req.body.Title, req.files.Sheet.data, req.body.Copyright, 1, null, false, function(err) {
         if (err) {
             res.redirect("/");
