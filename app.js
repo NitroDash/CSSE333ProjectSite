@@ -25,6 +25,8 @@ app.get(['/index', '/'], checkForLogin, (req, res) => {res.render('index')});
 app.get('/login', (req, res) => res.render('login'));
 app.get('/postPiece', checkForLogin, (req, res) => {res.render('postPiece')});
 app.get('/dataImport', checkForLogin, (req, res) => {res.render('dataImport')});
+app.get('/piece', checkForLogin, (req, res) => renderPiecePage(req, res, req.query.id));
+app.get('/pdfs', checkForLogin, (req, res) => renderPDF(req, res, req.query.id));
 
 //Catchall for .html files that haven't been converted to views yet
 app.use('/', checkForLogin, express.static('public', {extensions: ['html', 'htm']}));
@@ -100,7 +102,7 @@ function pieceSearch(req, res) {
             let piecesLeft = result.length;
             let results = [];
             for (let i = 0; i < result.length; i++) {
-                callProcedure("GetShortPieceData", [{name: "ID", type: sql.Int, value: result[0].ID}], function(pieceData, err) {
+                callProcedure("GetShortPieceData", [{name: "ID", type: sql.Int, value: result[i].ID}], function(pieceData, err) {
                     piecesLeft--;
                     if (!err && pieceData.length > 0) {
                         results.push(pieceData[0]);
@@ -114,12 +116,28 @@ function pieceSearch(req, res) {
     })
 }
 
-//Code to send PDFs, was annoying to find so don't lose it
-/*res.writeHead(200, {
-                        "Content-Type": "application/pdf",
-                        "Content-Disposition": "attachment; filename=sheet.pdf"
-                    });
-                    res.end(result[0].Sheet);*/
+function renderPiecePage(req, res, pieceID) {
+    callProcedure("GetShortPieceData", [{name: "ID", type: sql.Int, value: pieceID}], function(pieceData, err) {
+        if (err) {
+            res.render("piece");
+        } else {
+            res.render("piece", pieceData[0]);
+        }
+    })
+}
+
+function renderPDF(req, res, pieceID) {
+    callProcedure("GetPieceData", [{name: "ID", type: sql.Int, value: pieceID}], function(pieceData, err) {
+        if (err || pieceData.length == 0) {
+            res.send("Piece PDF not found.");
+        } else {
+            res.writeHead(200, {
+                "Content-Type": "application/pdf"
+            });
+            res.end(pieceData[0].Sheet);   
+        }
+    })
+}
 
 function postPiece(req, res) {
     console.log(req.files);

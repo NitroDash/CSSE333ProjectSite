@@ -16,7 +16,8 @@ body(class="text-dark bg-white")
         ul#search-results
             each val in results
                 div
-                    span= val.Title + (val.Copyright ? ' Copyright: ' + val.Copyright : '');
+                    span
+                        a(href="/piece?id="+val.PieceID)= val.Title + (val.ComposerName ? " by " + val.ComposerName : "")
             else
                 li No results found.
         

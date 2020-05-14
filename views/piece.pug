@@ -1,0 +1,23 @@
+doctype html
+html(lang='en')
+head
+    include includes/head_data.html
+    title= Title
+
+include includes/signout_header.html
+
+body(class="text-dark bg-white")
+    div.container
+        h1.text-center= Title
+        |
+        |
+        div.row
+            embed(src= "/pdfs?id="+PieceID, type="application/pdf", width= "500", height= "600")
+            div(class="row col-6")
+                ul(id="list" class="col-12")
+                    li= "Composer: " + (ComposerName || "Unknown")
+                div(id="review-div" class="col-12")
+                    h3 Reviews
+                    p I think, therefore I am.
+
+include includes/footer.html
