@@ -2,22 +2,27 @@ doctype html
 html(lang='en')
 head
     include includes/head_data.html
-    title= Title
+    title= pieceData.Title
 
 include includes/signout_header.html
 
 body(class="text-dark bg-white")
     div.container
-        h1.text-center= Title
+        h1.text-center= pieceData.Title
         |
         |
         div.row
-            embed(src= "/pdfs?id="+PieceID, type="application/pdf", width= "500", height= "600")
+            embed(src= "/pdfs?id="+pieceData.PieceID, type="application/pdf", width= "500", height= "600")
             div(class="row col-6")
                 ul(id="list" class="col-12")
-                    li= "Composer: " + (ComposerName || "Unknown")
+                    li= "Composer: " + (pieceData.ComposerName || "Unknown")
                 div(id="review-div" class="col-12")
                     h3 Reviews
-                    p I think, therefore I am.
+                    each val in reviews
+                        div.review-box
+                            div= val.Stars + "/5 stars by " + val.UserID
+                            div= val.Text
+                    else
+                        div No reviews yet. Be the first!
 
 include includes/footer.html
