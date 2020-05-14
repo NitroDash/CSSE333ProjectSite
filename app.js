@@ -52,8 +52,6 @@ const config = {
 function attemptLogin(req, res) {
     callProcedure("GetPassword", [{name: "Username", type: sql.VarChar(30), value: req.body.Username}], function(result, err) {
         if (result.length > 0) {
-            console.log(`test`);
-            // console.log(result[0].length);
             bcrypt.compare(req.body.Password,result[0].Password, function(err,result) {
                 if (result) {
                     req.session.user = req.body;
@@ -97,22 +95,31 @@ function logout(req, res) {
 function pieceSearch(req, res) {
     callProcedure("PiecesWithTitle", [{name: "Title", type: sql.VarChar(50), value: req.body.Title}], function(result, err) {
         if (err || result.length == 0) {
-            res.redirect("/searchResults");
+            res.render("searchResults", {results:[]});
         } else {
-            callProcedure("GetPieceData", [{name: "ID", type: sql.Int, value: result[0].ID}], function(result, err) {
-                if (err) {
-                    res.redirect("/searchResults");
-                } else {
-                    res.writeHead(200, {
-                        "Content-Type": "application/pdf",
-                        "Content-Disposition": "attachment; filename=sheet.pdf"
-                    });
-                    res.end(result[0].Sheet);
-                }
-            })
+            let piecesLeft = result.length;
+            let results = [];
+            for (let i = 0; i < result.length; i++) {
+                callProcedure("GetShortPieceData", [{name: "ID", type: sql.Int, value: result[0].ID}], function(pieceData, err) {
+                    piecesLeft--;
+                    if (!err && pieceData.length > 0) {
+                        results.push(pieceData[0]);
+                    }
+                    if (piecesLeft == 0) {
+                        res.render("searchResults", {'results': results});
+                    }
+                })
+            }
         }
     })
 }
+
+//Code to send PDFs, was annoying to find so don't lose it
+/*res.writeHead(200, {
+                        "Content-Type": "application/pdf",
+                        "Content-Disposition": "attachment; filename=sheet.pdf"
+                    });
+                    res.end(result[0].Sheet);*/
 
 function postPiece(req, res) {
     console.log(req.files);

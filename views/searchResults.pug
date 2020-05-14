@@ -1,0 +1,23 @@
+doctype html
+html(lang='en')
+head
+    include includes/head_data.html
+    title Search Results
+
+include includes/signout_header.html
+
+body(class="text-dark bg-white")
+    div.container
+        h1.text-center Search Results
+        |
+        |
+        div(class="col-8 offset-2")
+            include includes/searchbar.pug
+        ul#search-results
+            each val in results
+                div
+                    span= val.Title + (val.Copyright ? ' Copyright: ' + val.Copyright : '');
+            else
+                li No results found.
+        
+include includes/footer.html
