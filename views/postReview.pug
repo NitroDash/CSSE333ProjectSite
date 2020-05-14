@@ -1,0 +1,37 @@
+doctype html
+head
+  include includes/head_data.html
+  title Post Your Review
+
+include includes/signout_header.html
+
+
+
+form.form-container(action='/postPiece' method='POST' enctype='multipart/form-data')
+  .text-center
+    h1 Post Your Review
+    br
+  .form-group
+  label(for='exampleFormControlSelect1') Piece Title
+  select#exampleFormControlSelect1.form-control
+    option 1
+    option 2
+    option 3
+  br
+  label(for='Stars') Select Stars
+  br
+  input#customRange3.custom-range(type='range' min='1' max='5' step='1')
+  br
+  br
+  .form-group
+    label(for='Text') Enter Your Review Here
+    textarea#exampleFormControlTextarea1.form-control(rows='6')
+
+    br
+    br
+    br
+  .text-center
+    button.btn.btn-primary(type='submit') Submit
+  br
+  
+include includes/footer.html

@@ -25,6 +25,7 @@ app.get(['/index', '/'], checkForLogin, (req, res) => {res.render('index')});
 app.get('/login', (req, res) => res.render('login'));
 app.get('/postPiece', checkForLogin, (req, res) => {res.render('postPiece')});
 app.get('/dataImport', checkForLogin, (req, res) => {res.render('dataImport')});
+app.get('/postReview', checkForLogin, (req, res) => {res.render('postReview')});
 app.get('/piece', checkForLogin, (req, res) => renderPiecePage(req, res, req.query.id));
 app.get('/pdfs', checkForLogin, (req, res) => renderPDF(req, res, req.query.id));
 
