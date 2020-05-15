@@ -152,11 +152,17 @@ function renderPDF(req, res, pieceID) {
 }
 
 function postPiece(req, res) {
-    uploadPiece(req.body.Title, req.files.Sheet.data, req.body.Copyright, 1, null, false, function(err) {
-        if (err) {
+    callProcedure("RetrieveComposer", [{name: "user", type: sql.VarChar(30), value: req.sesion.user}], function(result, err) {
+        if (err || result.length == 0){
             res.redirect("/");
         } else {
-            res.redirect("/postPiece");
+            uploadPiece(req.body.Title, req.files.Sheet.data, req.body.Copyright, result[0].ComposerID, null, false, function(err) {
+                if (err) {
+                    res.redirect("/");
+                } else {
+                    res.redirect("/postPiece");
+                }
+            })
         }
     })
 }
