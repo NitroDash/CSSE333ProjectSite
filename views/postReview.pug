@@ -7,7 +7,7 @@ include includes/signout_header.html
 
 
 
-form.form-container(action='/postReview' method='POST' enctype='multipart/form-data')
+form.form-container(action='/postReview?id='+pieceData.PieceID method='POST')
   .text-center
     h1 Post Your Review
     br
@@ -15,7 +15,7 @@ form.form-container(action='/postReview' method='POST' enctype='multipart/form-d
   input.form-control(hidden='hidden' name='pieceID' id='pieceID')
   label(for='title') Piece Title
   br
-  label OriginalPieceName
+  label= pieceData.Title
   br
   br
   label(for='stars') Select Stars

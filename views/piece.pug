@@ -27,19 +27,18 @@ body(class="text-dark bg-white")
                     .card
                         .card-body
                             h5.card-title Recent Reviews
-                            br
-                            h6.card-subtitle.mb-2.text-muted By Test Reviewer
                             p.card-text
                             each val in reviews
                                 div.review-box
-                                    div= val.Stars + "/5 stars by " + val.UserID
+                                    span= val.Stars + "/5 stars "
+                                    span.text-muted= "by " + val.UserID
                                     div= val.Text
                             else
                                 div No reviews yet. Be the first!
                                 br
                                 br
                             a.card-link(href='#') Go to review
-                            a.card-link(href='/postReview') Write your own!
+                            a.card-link(href='/postReview?id='+pieceData.PieceID) Write your own!
 
 
 //- include includes/footer.html
