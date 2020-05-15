@@ -152,8 +152,9 @@ function renderPDF(req, res, pieceID) {
 }
 
 function postPiece(req, res) {
-    callProcedure("RetrieveComposer", [{name: "user", type: sql.VarChar(30), value: req.sesion.user}], function(result, err) {
+    callProcedure("RetrieveComposer", [{name: "user", type: sql.VarChar(30), value: req.session.user.Username}], function(result, err) {
         if (err || result.length == 0){
+            console.log(err);
             res.redirect("/");
         } else {
             uploadPiece(req.body.Title, req.files.Sheet.data, req.body.Copyright, result[0].ComposerID, null, false, function(err) {
@@ -174,7 +175,7 @@ function postReview(req, res) {
     uploadReview(15, req.session.user.Username, req.body.stars, req.body.text, function(err) {
         if (err) {
             //res.redirect("/");
-            console.log(pieceID)
+            console.log(pieceID);
             console.log(err);
         } else {
             res.redirect("/postReview");
