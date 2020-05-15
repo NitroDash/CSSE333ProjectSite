@@ -25,7 +25,7 @@ app.get(['/index', '/'], checkForLogin, (req, res) => {res.render('index')});
 app.get('/login', (req, res) => res.render('login'));
 app.get('/postPiece', checkForLogin, (req, res) => {res.render('postPiece')});
 app.get('/dataImport', checkForLogin, (req, res) => {res.render('dataImport')});
-app.get('/postReview', checkForLogin, (req, res) => {res.render('postReview')});
+app.get('/postReview', checkForLogin, (req, res) => renderPostReviewPage(req, res, req.query.id));
 app.get('/piece', checkForLogin, (req, res) => renderPiecePage(req, res, req.query.id));
 app.get('/pdfs', checkForLogin, (req, res) => renderPDF(req, res, req.query.id));
 app.get('/register', (req, res) => {res.render('register')})
@@ -138,6 +138,16 @@ function renderPiecePage(req, res, pieceID) {
     })
 }
 
+function renderPostReviewPage(req, res, pieceID) {
+    callProcedure("GetShortPieceData", [{name: "ID", type: sql.Int, value: pieceID}], function(pieceData, err) {
+        if (err) {
+            res.render("postReview");
+        } else {
+            res.render("postReview", {'pieceData': pieceData[0]});
+        }
+    })
+}
+
 function renderPDF(req, res, pieceID) {
     callProcedure("GetPieceData", [{name: "ID", type: sql.Int, value: pieceID}], function(pieceData, err) {
         if (err || pieceData.length == 0) {
@@ -165,13 +175,13 @@ function postReview(req, res) {
     //const queryString = location.search;
     //const urlParams = new URLSearchParams(queryString);
     //const pieceID = urlParams.get('piece?id')
-    uploadReview(15, req.session.user.Username, req.body.stars, req.body.text, function(err) {
+    uploadReview(req.query.id, req.session.user.Username, req.body.stars, req.body.text, function(err) {
         if (err) {
-            //res.redirect("/");
+            res.redirect("/");
             console.log(pieceID)
             console.log(err);
         } else {
-            res.redirect("/postReview");
+            res.redirect("/piece?id="+req.query.id);
         }
     })
 }
