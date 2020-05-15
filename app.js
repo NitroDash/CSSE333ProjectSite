@@ -37,6 +37,7 @@ app.post('/login', (req, res) => attemptLogin(req, res));
 app.post('/register', (req, res) => attemptRegister(req, res));
 app.post('/searchResults', (req, res) => pieceSearch(req, res));
 app.post('/postPiece', (req, res) => postPiece(req, res));
+app.post('/postReview', (req, res) => postReview(req, res));
 app.post('/import', (req, res) => importPieces(req, res));
 
 //Logout
@@ -152,6 +153,21 @@ function postPiece(req, res) {
     })
 }
 
+function postReview(req, res) {
+    //const queryString = location.search;
+    //const urlParams = new URLSearchParams(queryString);
+    //const pieceID = urlParams.get('piece?id')
+    uploadReview(15, req.session.user.Username, req.body.stars, req.body.text, function(err) {
+        if (err) {
+            //res.redirect("/");
+            console.log(pieceID)
+            console.log(err);
+        } else {
+            res.redirect("/postReview");
+        }
+    })
+}
+
 function importPieces(req, res) {
     var fileData = JSON.parse(req.body.Meta);
     for (var i = 0; i < fileData.length; i++) {
@@ -194,6 +210,28 @@ function uploadPiece(title, sheetBuffer, copyright, composerID, publisherID, isP
             if (err) {callback(err); return;}
             ps.execute({title: title, sheet: sheetBuffer, copyright: copyright, cID: composerID, pID: publisherID, paid: isPaid}, function(err, records) {
                 if (err) {callback(err); return;}
+                ps.unprepare(function(err) {
+                    callback(err);
+                })
+            })
+        })
+    }).catch(err => {
+        callback(err);
+    })
+}
+
+function uploadReview(pieceID, userID, stars, text, callback) {
+    sql.connect(config).then(pool => {
+        var ps = new sql.PreparedStatement(pool);
+        ps.input('username', sql.VarChar(30));
+        ps.input('pieceID', sql.Int);
+        ps.input('numStars', sql.Int);
+        ps.input('text', sql.VarChar(2000));
+        return ps.prepare('EXEC PostReview @username, @pieceID, @numStars, @text', function(err) {
+            if (err) {callback(err); return;}
+            ps.execute({username: userID, pieceID: pieceID, numStars: stars, text: text}, function(err, records) {
+                if (err) {callback(err); return;}
+                //console.log(records.rowsAffected)
                 ps.unprepare(function(err) {
                     callback(err);
                 })

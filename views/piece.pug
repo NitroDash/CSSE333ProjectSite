@@ -9,20 +9,37 @@ include includes/signout_header.html
 body(class="text-dark bg-white")
     div.container
         h1.text-center= pieceData.Title
+        br
+        br
         |
         |
         div.row
             embed(src= "/pdfs?id="+pieceData.PieceID, type="application/pdf", width= "500", height= "600")
             div(class="row col-6")
-                ul(id="list" class="col-12")
-                    li= "Composer: " + (pieceData.ComposerName || "Unknown")
-                div(id="review-div" class="col-12")
-                    h3 Reviews
-                    each val in reviews
-                        div.review-box
-                            div= val.Stars + "/5 stars by " + val.UserID
-                            div= val.Text
-                    else
-                        div No reviews yet. Be the first!
+                ul(id="list" class="list-group", "list-group-flush")
+                    li.list-group-item= "Composer: " + (pieceData.ComposerName || "Unknown")
+                    li.list-group-item= "Composer: " + (pieceData.ComposerName || "Unknown")
+                    li.list-group-item= "Composer: " + (pieceData.ComposerName || "Unknown")
+                    li.list-group-item= "Composer: " + (pieceData.ComposerName || "Unknown")
+                    li.list-group-item= "Composer: " + (pieceData.ComposerName || "Unknown")
 
-include includes/footer.html
+                div(id="review-div" class="col-12")
+                    .card
+                        .card-body
+                            h5.card-title Recent Reviews
+                            br
+                            h6.card-subtitle.mb-2.text-muted By Test Reviewer
+                            p.card-text
+                            each val in reviews
+                                div.review-box
+                                    div= val.Stars + "/5 stars by " + val.UserID
+                                    div= val.Text
+                            else
+                                div No reviews yet. Be the first!
+                                br
+                                br
+                            a.card-link(href='#') Go to review
+                            a.card-link(href='/postReview') Write your own!
+
+
+//- include includes/footer.html

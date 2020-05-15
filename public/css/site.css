@@ -24,8 +24,8 @@ body {
 }
 
 .footer {
-    position: absolute;
-    bottom: 0;
+    position: relative;
+    bottom: 0px;
     width: 100%;
     white-space: nowrap;
     height: 58px;
@@ -88,10 +88,9 @@ body {
 
 #review-div {
     margin-left: 90px;
-    margin-top: 50px;
+    margin-top: 10px;
     height: 250px;
     padding: 20px;
-    background-color: burlywood;
 }
 
 .review-box {

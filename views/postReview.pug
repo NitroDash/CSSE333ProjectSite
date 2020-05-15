@@ -7,25 +7,25 @@ include includes/signout_header.html
 
 
 
-form.form-container(action='/postPiece' method='POST' enctype='multipart/form-data')
+form.form-container(action='/postReview' method='POST' enctype='multipart/form-data')
   .text-center
     h1 Post Your Review
     br
   .form-group
-  label(for='exampleFormControlSelect1') Piece Title
-  select#exampleFormControlSelect1.form-control
-    option 1
-    option 2
-    option 3
+  input.form-control(hidden='hidden' name='pieceID' id='pieceID')
+  label(for='title') Piece Title
   br
-  label(for='Stars') Select Stars
+  label OriginalPieceName
   br
-  input#customRange3.custom-range(type='range' min='1' max='5' step='1')
+  br
+  label(for='stars') Select Stars
+  br
+  input#customRange3.custom-range(type='range' min='1' max='5' step='1' name='stars')
   br
   br
   .form-group
-    label(for='Text') Enter Your Review Here
-    textarea#exampleFormControlTextarea1.form-control(rows='6')
+    label(for='text') Enter Your Review Here
+    textarea#exampleFormControlTextarea1.form-control(rows='6'  name='text')
 
     br
     br
