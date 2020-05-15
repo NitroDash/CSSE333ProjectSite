@@ -184,14 +184,7 @@ function postReview(req, res) {
     //const pieceID = urlParams.get('piece?id')
     uploadReview(req.query.id, req.session.user.Username, req.body.stars, req.body.text, function(err) {
         if (err) {
-<<<<<<< HEAD
-            //res.redirect("/");
-            console.log(pieceID);
-=======
             res.redirect("/");
-            console.log(pieceID)
->>>>>>> 1fb4c8799b414c17f51d37bbb4b1e3c403ed2a43
-            console.log(err);
         } else {
             res.redirect("/piece?id="+req.query.id);
         }
