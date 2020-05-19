@@ -93,6 +93,13 @@ body {
     padding: 20px;
 }
 
+.user-profile-cards {
+    margin: auto;
+    margin-top: 10px;
+    height: 250px;
+    padding: 20px;
+}
+
 .review-box {
     background-color: white;
     border: solid black;

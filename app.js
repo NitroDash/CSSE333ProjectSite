@@ -25,14 +25,16 @@ app.get(['/index', '/'], checkForLogin, (req, res) => {res.render('index')});
 app.get('/login', (req, res) => res.render('login'));
 app.get('/postPiece', checkForLogin, (req, res) => {res.render('postPiece')});
 app.get('/dataImport', checkForLogin, (req, res) => {res.render('dataImport')});
+//app.get('/userProfile', checkForLogin, (req, res) => {res.render('userProfile')});
 app.get('/postReview', checkForLogin, (req, res) => renderPostReviewPage(req, res, req.query.id));
 app.get('/piece', checkForLogin, (req, res) => renderPiecePage(req, res, req.query.id));
+app.get('/userProfile', checkForLogin, (req, res) => renderProfilePage(req, res));
 app.get('/pdfs', checkForLogin, (req, res) => renderPDF(req, res, req.query.id));
 app.get('/register', (req, res) => {res.render('register')})
 
 //Catchall for .html files that haven't been converted to views yet
 app.use('/', checkForLogin, express.static('public', {extensions: ['html', 'htm']}));
-
+ 
 //Posts to various forms
 app.post('/login', (req, res) => attemptLogin(req, res));
 app.post('/register', (req, res) => attemptRegister(req, res));
@@ -134,9 +136,22 @@ function renderPiecePage(req, res, pieceID) {
             callProcedure("ReviewsOfPiece", [{name: "PieceID", type: sql.Int, value: pieceID}], function(reviews, err) {
                 res.render("piece", {'pieceData': pieceData[0], 'reviews': reviews});
             })
-        }
-    })
+        } 
+    }) 
 }
+
+function renderProfilePage(req, res) {
+    callProcedure("PiecesReviewedBy", [{name: "username", type: sql.VarChar(30), value: req.session.user.Username}], function(reviewed, err) {
+        if (err) {
+            res.render("userProfile");
+        } else {
+            callProcedure("PiecesWrittenBy", [{name: "username", type: sql.VarChar(30), value: req.session.user.Username}], function(written, err) {
+                res.render("userProfile", {'user': req.session.user.Username, 'reviewedPieces': reviewed, 'writtenPieces': written});
+            })
+        }
+    }) 
+}
+
 
 function renderPostReviewPage(req, res, pieceID) {
     callProcedure("GetShortPieceData", [{name: "ID", type: sql.Int, value: pieceID}], function(pieceData, err) {
