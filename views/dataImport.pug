@@ -19,10 +19,8 @@ body(class="text-dark bg-white")
             br
                 
         div(class="text-center")
-            label(for='Meta') Paste your JSON
-            input#Meta.form-control(type='text' name='Meta')
-            label(for='Sheets') Upload your sheets (filenames included in JSON)
-            input#Sheets.form-control(type='file' name='Sheets' accept='.pdf' multiple)
+            label(for='Data') Upload your data (preferably dumped from the database)
+            input#Sheets.form-control(type='file' name='Data' accept='.json')
             button.btn.btn-primary(type='submit') Submit
         
 

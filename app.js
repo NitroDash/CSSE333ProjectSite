@@ -24,22 +24,23 @@ app.use(cookieParser());
 app.get(['/index', '/'], checkForLogin, (req, res) => {res.render('index')});
 app.get('/login', (req, res) => res.render('login'));
 app.get('/postPiece', checkForLogin, (req, res) => {res.render('postPiece')});
-app.get('/dataImport', checkForLogin, (req, res) => {res.render('dataImport')});
+app.get('/dataImport', (req, res) => {res.render('dataImport')});
 app.get('/postReview', checkForLogin, (req, res) => renderPostReviewPage(req, res, req.query.id));
 app.get('/piece', checkForLogin, (req, res) => renderPiecePage(req, res, req.query.id));
 app.get('/pdfs', checkForLogin, (req, res) => renderPDF(req, res, req.query.id));
-app.get('/register', (req, res) => {res.render('register')})
-
-//Catchall for .html files that haven't been converted to views yet
-app.use('/', checkForLogin, express.static('public', {extensions: ['html', 'htm']}));
+app.get('/register', (req, res) => {res.render('register')});
+app.get('/datadump', (req, res) => getAllData(req, res));
 
 //Posts to various forms
 app.post('/login', (req, res) => attemptLogin(req, res));
 app.post('/register', (req, res) => attemptRegister(req, res));
-app.post('/searchResults', (req, res) => pieceSearch(req, res));
-app.post('/postPiece', (req, res) => postPiece(req, res));
-app.post('/postReview', (req, res) => postReview(req, res));
-app.post('/import', (req, res) => importPieces(req, res));
+app.post('/searchResults', checkForLogin, (req, res) => pieceSearch(req, res));
+app.post('/postPiece', checkForLogin, (req, res) => postPiece(req, res));
+app.post('/postReview', checkForLogin, (req, res) => postReview(req, res));
+app.post('/import', (req, res) => importData(req, res));
+
+//Catchall for .html files that haven't been converted to views yet
+app.use('/', checkForLogin, express.static('public', {extensions: ['html', 'htm']}));
 
 //Logout
 app.get('/logout', (req, res) => logout(req, res));
@@ -191,19 +192,69 @@ function postReview(req, res) {
     })
 }
 
-function importPieces(req, res) {
-    var fileData = JSON.parse(req.body.Meta);
-    for (var i = 0; i < fileData.length; i++) {
-        var filename = fileData[i].filename;
-        req.files.Sheets.forEach(sheet => {
-            if (sheet.name == filename) {
-                uploadPiece(fileData[i].title, sheet.data, fileData[i].copyright, fileData[i].composerID, fileData[i].publisherID, !!fileData[i].isPaid, function(err) {
-                    if (err) console.log(err);
+function importData(req, res) {
+    var data = JSON.parse(req.files.Data.data.toString());
+    var composersLeft = data.Composers.length;
+    data.Composers.forEach(comp => {
+        callProcedure("RegisterComposer", [{name: "ComposerName", type: sql.VarChar(30), value: comp.Name}, {name: "ComposerID", type: sql.Int, value: comp.ID}], function(result, err) {
+            if (err) console.log(err);
+            composersLeft--;
+            if (composersLeft <= 0) {
+                data.Users.forEach(user => {
+                    callProcedure("RegisterUser", [{name: "username", type: sql.VarChar(30), value: user.Username}, {name: "password", type: sql.NVarChar(80), value: user.Password},{name: "composerID", type: sql.Int, value: user.ComposerID}], function(result, err) {if (err) console.log(err)});
+                })
+                data.Publishers.forEach(pub => {
+                    callProcedure("RegisterPublisher", [{name: "PubName", type: sql.VarChar(40), value: pub.Name}, {name: "PubID", type: sql.VarChar(50), value: pub.ID}], function(result, err) {if (err) console.log(err)});
+                })
+                data.Tags.forEach(tag => {
+                    callProcedure("CreateTag", [{name: "tag_name", type: sql.VarChar(30), value: tag.Name}], function(result, err) {if (err) console.log(err)});
+                })
+                var piecesLeft = data.Pieces.length;
+                data.Pieces.forEach(piece => {
+                    callProcedure("PostPieceFromDump", [{name: "ID", type: sql.Int, value: piece.ID},{name: "title", type: sql.VarChar(50), value: piece.Title},{name: "timeuploaded", type: sql.DateTime, value: piece.TimeUploaded},{name: "copyright", type: sql.VarChar(50), value: piece.Copyright},{name: "publisherID", type: sql.Int, value: piece.PublisherID},{name: "isPaid", type: sql.Bit, value: piece.IsPaid},{name: "price", type: sql.Money, value: piece.Price}], function(result, err) {
+                        if (err) console.log(err);
+                        piecesLeft--;
+                        if (piecesLeft <= 0) {
+                            updateSheet(data.Pieces, 0);
+                        }
+                    });
+                })
+                data.Writes.forEach(write => {
+                    callProcedure("AddComposer", [{name: "pieceID", type: sql.Int, value: write.PieceID}, {name: "composerID", type: sql.Int, value: write.ComposerID}], function(result, err) {if (err) console.log(err)});
+                })
+                data.Reviews.forEach(review => {
+                    callProcedure("PostReview", [{name: "username", type: sql.VarChar(30), value: review.UserID}, {name: "pieceID", type: sql.Int, value: review.PieceID},{name: "numStars", type: sql.SmallInt, value: review.Stars},{name: "text", type: sql.VarChar(2000), value: review.Text},{name: "time", type: sql.DateTime, value: review.Timestamp}], function(result, err) {if (err) console.log(err)});
+                })
+                data.PieceTags.forEach(hasTag => {
+                    callProcedure("AddTag", [{name: "tag_name", type: sql.VarChar(30), value: hasTag.TagName}, {name: "piece_id", type: sql.Int, value: hasTag.PieceID}], function(result, err) {if (err) console.log(err)});
                 })
             }
+        });
+    })
+    res.redirect("/dataImport");
+}
+
+function updateSheet(sheets, entry) {
+    if (entry >= sheets.length) return;
+    callProcedure("UpdateSheetFromDump", [{name: "PieceID", type: sql.Int, value: sheets[entry].ID}, {name: "PSheet", type: sql.VarBinary, value: sheets[entry].Sheet ? Buffer.from(sheets[entry].Sheet.data) : null}, {name: "PPrev", type: sql.VarBinary, value: sheets[entry].Preview ? Buffer.from(sheets[entry].Preview.data) : null}], function(result, err) {
+        if (err) console.log(err);
+        updateSheet(sheets, ++entry);
+    });
+}
+
+function getAllData(req, res) {
+    const dumpProcs = ["Composers", "Pieces", "Users", "Reviews", "Tags", "PieceTags", "Publishers", "Writes"];
+    let finishedRequests = 0;
+    var results = {};
+    dumpProcs.forEach(procName => {
+        callProcedure("Dump"+procName, [], function(result, err) {
+            finishedRequests++;
+            results[procName] = result;
+            if (finishedRequests >= dumpProcs.length) {
+                res.set({"Content-disposition": "attachment"}).send(results);
+            }
         })
-    }
-    res.redirect("/");
+    })
 }
 
 function callProcedure(proc_name, inputs, callback) {
