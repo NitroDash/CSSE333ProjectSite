@@ -9,7 +9,7 @@ include includes/signout_header.html
 
 body(class="text-dark bg-white")
     div(class="text-center")
-        h1= "Welcome, " + user
+        h1= user + "'s Profile"
         br
         br
         br
@@ -18,26 +18,26 @@ body(class="text-dark bg-white")
         div(class="col-5 user-profile-cards")
                     .card
                         .card-body
-                            h5.card-title You have reviewed these pieces...
+                            h5.card-title= user + " has reviewed these pieces..."
                             p.card-text
                             each val in reviewedPieces
                                 div.review-box
                                     a.card-link(href='/piece?id='+val.PieceID)= val.Title
                             else
-                                div You haven't reviewed any pieces.
+                                div= user + " has not reviewed any pieces."
                                 br
                                 br
         
         div(class="col-5 user-profile-cards")
                     .card
                         .card-body
-                            h5.card-title You have written these pieces...
+                            h5.card-title= user + " has written these pieces..."
                             p.card-text
                             each val in writtenPieces
                                 div.review-box
                                     a.card-link(href='/piece?id='+val.PieceID)= val.Title
                             else
-                                div You haven't written any pieces.
+                                div= user + " has not written any pieces."
                                 br
                                 br
             

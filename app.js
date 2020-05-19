@@ -27,7 +27,7 @@ app.get('/postPiece', checkForLogin, (req, res) => {res.render('postPiece')});
 app.get('/dataImport', (req, res) => {res.render('dataImport')});
 app.get('/postReview', checkForLogin, (req, res) => renderPostReviewPage(req, res, req.query.id));
 app.get('/piece', checkForLogin, (req, res) => renderPiecePage(req, res, req.query.id));
-app.get('/userProfile', checkForLogin, (req, res) => renderProfilePage(req, res));
+app.get('/userProfile', checkForLogin, (req, res) => renderProfilePage(req, res, req.session.user.Username));
 app.get('/pdfs', checkForLogin, (req, res) => renderPDF(req, res, req.query.id));
 app.get('/register', (req, res) => {res.render('register')});
 app.get('/datadump', (req, res) => getAllData(req, res));
@@ -140,13 +140,13 @@ function renderPiecePage(req, res, pieceID) {
     }) 
 }
 
-function renderProfilePage(req, res) {
-    callProcedure("PiecesReviewedBy", [{name: "username", type: sql.VarChar(30), value: req.session.user.Username}], function(reviewed, err) {
+function renderProfilePage(req, res, username) {
+    callProcedure("PiecesReviewedBy", [{name: "username", type: sql.VarChar(30), value: username}], function(reviewed, err) {
         if (err) {
             res.render("userProfile");
         } else {
-            callProcedure("PiecesWrittenBy", [{name: "username", type: sql.VarChar(30), value: req.session.user.Username}], function(written, err) {
-                res.render("userProfile", {'user': req.session.user.Username, 'reviewedPieces': reviewed, 'writtenPieces': written});
+            callProcedure("PiecesWrittenBy", [{name: "username", type: sql.VarChar(30), value: username}], function(written, err) {
+                res.render("userProfile", {'user': username, 'reviewedPieces': reviewed, 'writtenPieces': written});
             })
         }
     }) 
@@ -328,4 +328,4 @@ function uploadReview(pieceID, userID, stars, text, callback) {
     }).catch(err => {
         callback(err);
     })
-} 
+}
