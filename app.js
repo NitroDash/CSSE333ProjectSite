@@ -21,7 +21,7 @@ app.use(session({secret: "asufghaunefnw98fn", resave: true, saveUninitialized: t
 app.use(cookieParser());
 
 // Endpoints for views
-app.get(['/index', '/'], checkForLogin, (req, res) => {res.render('index')});
+app.get(['/index', '/'], checkForLogin, (req, res) => {res.render('index', {'user':  req.session.user.Username})});
 app.get('/login', (req, res) => res.render('login'));
 app.get('/postPiece', checkForLogin, (req, res) => {res.render('postPiece')});
 app.get('/dataImport', (req, res) => {res.render('dataImport')});
@@ -126,6 +126,18 @@ function pieceSearch(req, res) {
             }
         }
     })
+}
+
+function renderIndexPage(req, res, username) {
+    callProcedure("GetShortPieceData", [{name: "ID", type: sql.Int, value: pieceID}], function(pieceData, err) {
+        if (err) {
+            res.render("piece");
+        } else {
+            callProcedure("ReviewsOfPiece", [{name: "PieceID", type: sql.Int, value: pieceID}], function(reviews, err) {
+                res.render("piece", {'pieceData': pieceData[0], 'reviews': reviews});
+            })
+        } 
+    }) 
 }
 
 function renderPiecePage(req, res, pieceID) {

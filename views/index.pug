@@ -8,6 +8,8 @@ include includes/signout_header.html
 body(class="text-dark bg-white")
     div(class="container")
         h1(class="text-center") Sheet Music
+        a.card-link(class="btn btn-secondary btn-sm float-right" href='/userProfile?id='+user) View Profile
+        br
         br
         br
         br
@@ -28,8 +30,8 @@ body(class="text-dark bg-white")
                 br
                 |
                 |
-                button(id="view1" type="submit" class="btn btn-secondary col-2 offset-1") View Piece
-                button(id="view2" type="submit" class="btn btn-secondary col-2 offset-1") View Piece
+                //button(id="view1" type="submit" class="btn btn-secondary col-2 offset-1") View Piece
+                //button(id="view2" type="submit" class="btn btn-secondary col-2 offset-1") View Piece
 
 include includes/footer.html
 script(src="./js/index.js")
