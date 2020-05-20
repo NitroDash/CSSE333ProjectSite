@@ -30,7 +30,8 @@ body(class="text-dark bg-white")
                             each val in reviews
                                 div.review-box
                                     span= val.Stars + "/5 stars "
-                                    span.text-muted= "by " + val.UserID
+                                    //span.text-muted= 
+                                    a.card-link(href='/userProfile?id='+val.UserID)= "by " + val.UserID
                                     div= val.Text
                             else
                                 div No reviews yet. Be the first!
