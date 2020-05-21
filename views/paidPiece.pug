@@ -1,0 +1,45 @@
+doctype html
+html(lang='en')
+head
+    include includes/head_data.html
+    title= pieceData.Title
+
+include includes/signout_header.html
+
+body(class="text-dark bg-white")
+    div.container
+        h1.text-center= pieceData.Title
+        br
+        br
+        |
+        |
+        div.row
+            embed(src= "/pdfPreview?id="+pieceData.PieceID, type="application/pdf", width= "500", height= "600")
+            div(class="row col-6")
+                ul(id="list" class="list-group", "list-group-flush")
+                    li.list-group-item= "Composer: " + (pieceData.ComposerName || "Unknown")
+                    li.list-group-item= "Publisher: " + (pieceData.PublisherName || "Unknown")
+                    li.list-group-item= "Time Uploaded: " + (pieceData.TimeUploaded || "Unknown")
+                    li.list-group-item= "Copyright: " + (pieceData.Copyright || "Unknown")
+
+                div(id="review-div" class="col-12")
+                    .card
+                        .card-body
+                            h5.card-title Recent Reviews
+                            p.card-text
+                            each val in reviews
+                                div.review-box
+                                    span= val.Stars + "/5 stars "
+                                    //span.text-muted= 
+                                    a.card-link(href='/userProfile?id='+val.UserID)= "by " + val.UserID
+                                    div= val.Text
+                            else
+                                div No reviews yet. Be the first!
+                                br
+                                br
+                            a.card-link(href='/postReview?id='+pieceData.PieceID) Write your own!
+                
+                button.btn.btn-primary(type='button')= "Buy $" + pieceData.Price
+
+
+//- include includes/footer.html

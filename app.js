@@ -27,8 +27,10 @@ app.get('/postPiece', checkForLogin, (req, res) => renderPiecePostPage(req, res)
 app.get('/dataImport', (req, res) => {res.render('dataImport')});
 app.get('/postReview', checkForLogin, (req, res) => renderPostReviewPage(req, res, req.query.id));
 app.get('/piece', checkForLogin, (req, res) => renderPiecePage(req, res, req.query.id));
+app.get('/paidPiece', checkForLogin, (req, res) => renderPaidPiecePage(req, res, req.query.id));
 app.get('/userProfile', checkForLogin, (req, res) => renderProfilePage(req, res, req.query.id));
 app.get('/pdfs', checkForLogin, (req, res) => renderPDF(req, res, req.query.id));
+app.get('/pdfPreview', checkForLogin, (req, res) => renderPDFPreview(req, res, req.query.id));
 app.get('/register', (req, res) => {res.render('register')});
 app.get('/datadump', (req, res) => getAllData(req, res));
 
@@ -53,7 +55,7 @@ const config = {
     user: 'SheetMusicClient',
     password: 'HJCszqVxEe1',
     server: 'golem.csse.rose-hulman.edu',
-    database: 'SheetMusic'
+    database: 'SheetMusic' 
 }
 
 function attemptLogin(req, res) {
@@ -112,12 +114,13 @@ function pieceSearch(req, res) {
             res.render("searchResults", {results:[]});
         } else {
             let piecesLeft = result.length;
-            let results = [];
+            let results = []; 
             for (let i = 0; i < result.length; i++) {
                 callProcedure("GetShortPieceData", [{name: "ID", type: sql.Int, value: result[i].ID}], function(pieceData, err) {
                     piecesLeft--;
                     if (!err && pieceData.length > 0) {
                         results.push(pieceData[0]);
+                        console.log(pieceData[0].IsPaid)
                     }
                     if (piecesLeft == 0) {
                         res.render("searchResults", {'results': results});
@@ -128,7 +131,7 @@ function pieceSearch(req, res) {
     })
 }
 
-function renderIndexPage(req, res, username) {
+/*function renderIndexPage(req, res, username) {
     callProcedure("GetShortPieceData", [{name: "ID", type: sql.Int, value: pieceID}], function(pieceData, err) {
         if (err) {
             res.render("piece");
@@ -138,7 +141,7 @@ function renderIndexPage(req, res, username) {
             })
         } 
     }) 
-}
+}*/
 
 function renderPiecePostPage(req, res) {
     callProcedure("DumpTags", [], function(tags, err) {
@@ -157,6 +160,18 @@ function renderPiecePage(req, res, pieceID) {
         } else {
             callProcedure("ReviewsOfPiece", [{name: "PieceID", type: sql.Int, value: pieceID}], function(reviews, err) {
                 res.render("piece", {'pieceData': pieceData[0], 'reviews': reviews});
+            })
+        } 
+    }) 
+}
+
+function renderPaidPiecePage(req, res, pieceID) {
+    callProcedure("GetShortPaidPieceData", [{name: "ID", type: sql.Int, value: pieceID}], function(pieceData, err) {
+        if (err) {
+            res.render("paidPiece");
+        } else {
+            callProcedure("ReviewsOfPiece", [{name: "PieceID", type: sql.Int, value: pieceID}], function(reviews, err) {
+                res.render("piece", {'pieceData': pieceData, 'reviews': reviews});
             })
         } 
     }) 
@@ -194,6 +209,19 @@ function renderPDF(req, res, pieceID) {
                 "Content-Type": "application/pdf"
             });
             res.end(pieceData[0].Sheet);   
+        }
+    })
+}
+
+function renderPDFPreview(req, res, pieceID) {
+    callProcedure("GetPaidPieceData", [{name: "ID", type: sql.Int, value: pieceID}], function(pieceData, err) {
+        if (err || pieceData.length == 0) {
+            res.send("Piece PDF not found.");
+        } else {
+            res.writeHead(200, {
+                "Content-Type": "application/pdf"
+            });
+            res.end(pieceData[0].Preview);   
         }
     })
 }

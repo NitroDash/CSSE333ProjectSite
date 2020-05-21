@@ -19,7 +19,10 @@ body(class="text-dark bg-white")
             each val in results
                 div
                     span
-                        a(href="/piece?id="+val.PieceID)= val.Title + (val.ComposerName ? " by " + val.ComposerName : "")
+                        if val.IsPaid
+                            a(href="/paidPiece?id="+val.PieceID)= val.Title + (val.ComposerName ? " by " + val.ComposerName : "")
+                        else
+                            a(href="/piece?id="+val.PieceID)= val.Title + (val.ComposerName ? " by " + val.ComposerName : "")
             else
                 li No results found.
         
