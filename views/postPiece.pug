@@ -23,9 +23,15 @@ form.form-container(action='/postPiece' method='POST' enctype='multipart/form-da
   .form-group
     input(type='checkbox' name='isPaid' value='isPaid' is='isPaid')
     label(for='isPaid') Paid?
+    br
+    input(type='number' name='Price' min='0' max='100' step='0.01')
+    label(for='Price') Price (for paid pieces, in dollars)
   .text-center
     label(for='Sheet') Upload your PDF
     input#Sheet.form-control(type='file' name='Sheet' accept='.pdf')
+    br
+    label(for='Preview') Upload a preview (for paid pieces; can be viewed before buying)
+    input#Preview.form-control(type='file' name='Preview' accept='.pdf')
     br
     label(for='Tags') Select tag(s) that match your piece
     for tag in tags

@@ -204,7 +204,7 @@ function postPiece(req, res) {
             console.log(err);
             res.redirect("/");
         } else {
-            uploadPiece(req.body.Title, req.files.Sheet.data, req.body.Copyright, result[0].ComposerID, null, false, function(result, err) {
+            uploadPiece(req.body.Title, req.files.Sheet.data, req.body.Copyright, result[0].ComposerID, null, req.body.isPaid, req.files.Preview ? req.files.Preview.data : null, req.body.Price, function(result, err) {
                 if (err) {
                     res.redirect("/");
                 } else {
@@ -312,7 +312,7 @@ function callProcedure(proc_name, inputs, callback) {
     })
 }
 
-function uploadPiece(title, sheetBuffer, copyright, composerID, publisherID, isPaid, callback) {
+function uploadPiece(title, sheetBuffer, copyright, composerID, publisherID, isPaid, previewBuffer, price, callback) {
     sql.connect(config).then(pool => {
         var ps = new sql.PreparedStatement(pool);
         ps.input('title', sql.VarChar(50));
@@ -320,10 +320,20 @@ function uploadPiece(title, sheetBuffer, copyright, composerID, publisherID, isP
         ps.input('copyright', sql.VarChar(50));
         ps.input('cID', sql.Int);
         ps.input('pID', sql.Int);
-        ps.input('paid', sql.Bit);
-        return ps.prepare('EXEC PostPiece @title, @sheet, @copyright, @cID, @pID, @paid', function(err) {
+        var query, args;
+        if (isPaid) {
+            ps.input('preview', sql.VarBinary);
+            ps.input('price', sql.Money);
+            query = 'EXEC PostPaidPiece @title, @sheet, @copyright, @cID, @pID, @preview, @price';
+            args = {title: title, sheet: sheetBuffer, copyright: copyright, cID: composerID, pID: publisherID, preview: previewBuffer, price: price};
+        } else {
+            ps.input('paid', sql.Bit);
+            query = 'EXEC PostPiece @title, @sheet, @copyright, @cID, @pID, @paid';
+            args = {title: title, sheet: sheetBuffer, copyright: copyright, cID: composerID, pID: publisherID, paid: false};
+        }
+        return ps.prepare(query, function(err) {
             if (err) {callback(err); return;}
-            ps.execute({title: title, sheet: sheetBuffer, copyright: copyright, cID: composerID, pID: publisherID, paid: isPaid}, function(err, records) {
+            ps.execute(args, function(err, records) {
                 if (err) {console.log(err); callback([], err); return;}
                 ps.unprepare(function(err) {
                     callback(records.recordset, err);
