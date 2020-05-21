@@ -41,6 +41,7 @@ app.post('/searchResults', checkForLogin, (req, res) => pieceSearch(req, res));
 app.post('/postPiece', checkForLogin, (req, res) => postPiece(req, res));
 app.post('/postReview', checkForLogin, (req, res) => postReview(req, res));
 app.post('/import', (req, res) => importData(req, res));
+app.post('/buyPiece', checkForLogin, (req, res) => renderPDF(req, res, req.query.id));
 
 //Catchall for .html files that haven't been converted to views yet
 app.use('/', checkForLogin, express.static('public', {extensions: ['html', 'htm']}));
@@ -120,7 +121,6 @@ function pieceSearch(req, res) {
                     piecesLeft--;
                     if (!err && pieceData.length > 0) {
                         results.push(pieceData[0]);
-                        console.log(pieceData[0].IsPaid)
                     }
                     if (piecesLeft == 0) {
                         res.render("searchResults", {'results': results});

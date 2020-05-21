@@ -38,8 +38,8 @@ body(class="text-dark bg-white")
                                 br
                                 br
                             a.card-link(href='/postReview?id='+pieceData.PieceID) Write your own!
-                
-                button.btn.btn-primary(type='button')= "Buy $" + pieceData.Price
+                form(action='/buyPiece?id='+pieceData.PieceID method='POST')
+                    button.btn.btn-primary(type='submit')= "Buy $" + pieceData.Price
 
 
 //- include includes/footer.html
