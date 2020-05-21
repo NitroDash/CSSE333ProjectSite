@@ -27,6 +27,11 @@ form.form-container(action='/postPiece' method='POST' enctype='multipart/form-da
     label(for='Sheet') Upload your PDF
     input#Sheet.form-control(type='file' name='Sheet' accept='.pdf')
     br
+    label(for='Tags') Select tag(s) that match your piece
+    for tag in tags
+        div
+            input(type='checkbox' name='tag-'+tag.Name)
+            span= tag.Name
     br
     br
   .text-center

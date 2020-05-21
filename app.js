@@ -23,7 +23,7 @@ app.use(cookieParser());
 // Endpoints for views
 app.get(['/index', '/'], checkForLogin, (req, res) => {res.render('index', {'user':  req.session.user.Username})});
 app.get('/login', (req, res) => res.render('login'));
-app.get('/postPiece', checkForLogin, (req, res) => {res.render('postPiece')});
+app.get('/postPiece', checkForLogin, (req, res) => renderPiecePostPage(req, res));
 app.get('/dataImport', (req, res) => {res.render('dataImport')});
 app.get('/postReview', checkForLogin, (req, res) => renderPostReviewPage(req, res, req.query.id));
 app.get('/piece', checkForLogin, (req, res) => renderPiecePage(req, res, req.query.id));
@@ -140,6 +140,16 @@ function renderIndexPage(req, res, username) {
     }) 
 }
 
+function renderPiecePostPage(req, res) {
+    callProcedure("DumpTags", [], function(tags, err) {
+        if (err) {
+            res.render('postPiece', {tags: []});
+        } else {
+            res.render('postPiece', {tags: tags});
+        }
+    })
+}
+
 function renderPiecePage(req, res, pieceID) {
     callProcedure("GetShortPieceData", [{name: "ID", type: sql.Int, value: pieceID}], function(pieceData, err) {
         if (err) {
@@ -194,10 +204,15 @@ function postPiece(req, res) {
             console.log(err);
             res.redirect("/");
         } else {
-            uploadPiece(req.body.Title, req.files.Sheet.data, req.body.Copyright, result[0].ComposerID, null, false, function(err) {
+            uploadPiece(req.body.Title, req.files.Sheet.data, req.body.Copyright, result[0].ComposerID, null, false, function(result, err) {
                 if (err) {
                     res.redirect("/");
                 } else {
+                    for (let [key, value] of Object.entries(req.body)) {
+                        if (key.substr(0,4) == "tag-") {
+                            callProcedure("AddTag", [{name: "tag_name", type: sql.VarChar(50), value: key.substr(4)}, {name: "piece_id", type: sql.Int, value: result[0].PieceID}], function(result, err) {if (err) console.log(err)});
+                        }
+                    }
                     res.redirect("/postPiece");
                 }
             })
@@ -309,14 +324,14 @@ function uploadPiece(title, sheetBuffer, copyright, composerID, publisherID, isP
         return ps.prepare('EXEC PostPiece @title, @sheet, @copyright, @cID, @pID, @paid', function(err) {
             if (err) {callback(err); return;}
             ps.execute({title: title, sheet: sheetBuffer, copyright: copyright, cID: composerID, pID: publisherID, paid: isPaid}, function(err, records) {
-                if (err) {callback(err); return;}
+                if (err) {console.log(err); callback([], err); return;}
                 ps.unprepare(function(err) {
-                    callback(err);
+                    callback(records.recordset, err);
                 })
             })
         })
     }).catch(err => {
-        callback(err);
+        callback([], err);
     })
 }
 
