@@ -171,10 +171,10 @@ function renderPaidPiecePage(req, res, pieceID) {
             res.render("paidPiece");
         } else {
             callProcedure("ReviewsOfPiece", [{name: "PieceID", type: sql.Int, value: pieceID}], function(reviews, err) {
-                res.render("piece", {'pieceData': pieceData, 'reviews': reviews});
+                res.render("paidPiece", {'pieceData': pieceData[0], 'reviews': reviews});
             })
         } 
-    }) 
+    })  
 }
 
 function renderProfilePage(req, res, username) {
@@ -218,8 +218,8 @@ function renderPDFPreview(req, res, pieceID) {
         if (err || pieceData.length == 0) {
             res.send("Piece PDF not found.");
         } else {
-            res.writeHead(200, {
-                "Content-Type": "application/pdf"
+            res.writeHead(200, { 
+                "Content-Type": "application/pdf" 
             });
             res.end(pieceData[0].Preview);   
         }
