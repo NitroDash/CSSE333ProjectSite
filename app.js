@@ -107,7 +107,7 @@ function logout(req, res) {
 }
 
 function pieceSearch(req, res) {
-    callProcedure("PiecesWithTitle", [{name: "Title", type: sql.VarChar(50), value: req.body.Title}], function(result, err) {
+    callProcedure("PiecesMatchingSearch", [{name: "searchTerm", type: sql.VarChar(50), value: req.body.Title}], function(result, err) {
         if (err || result.length == 0) {
             res.render("searchResults", {results:[]});
         } else {
